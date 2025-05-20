@@ -1,0 +1,108 @@
+CREATE OR REPLACE PROCEDURE usun_klienta(id INTEGER) language plpgsql as $$
+declare
+	klient_istnieje boolean;
+begin
+	klient_istnieje := EXISTS(SELECT 1 FROM klienci k WHERE k.id = usun_klienta.id);
+	if not klient_istnieje then
+		raise exception 'Klient o takim id nie istnieje';
+	end if;
+
+	DELETE FROM klienci WHERE id = usun_klienta.id;
+end $$;
+
+
+
+CREATE OR REPLACE PROCEDURE usun_dzialanie(id INTEGER) language plpgsql as $$
+declare
+	dzialanie_istnieje boolean;
+begin
+	dzialanie_istnieje := EXISTS(SELECT 1 FROM dzialania dz WHERE dz.id = usun_dzialanie.id);
+	if not dzialanie_istnieje then
+		raise exception 'Zdarzenie o takim id nie istnieje';
+	end if;
+
+	DELETE FROM dzialania WHERE id = usun_dzialanie.id;
+end $$;
+
+
+
+CREATE OR REPLACE PROCEDURE usun_konto(nazwa VARCHAR) language plpgsql as $$
+declare
+	konto_istnieje boolean;
+begin
+	konto_istnieje := EXISTS(SELECT 1 FROM konta k WHERE k.nazwa = usun_konto.nazwa);
+	if not konto_istnieje then
+		raise exception 'Konto o takiej nazwie nie istnieje';
+	end if;
+
+	DELETE FROM konta WHERE konta.nazwa = usun_konto.nazwa;
+end $$;
+
+
+
+CREATE OR REPLACE PROCEDURE usun_pracownika(id INTEGER) language plpgsql as $$
+declare
+	pracownik_istnieje boolean;
+begin
+	pracownik_istnieje := EXISTS(SELECT 1 FROM konta k WHERE k.id = usun_pracownika.id);
+	if not pracownik_istnieje then
+		raise exception 'Pracownik o takim id nie istnieje';
+	end if;
+
+	DELETE FROM pracownicy WHERE id = usun_pracownika.id;
+end $$;
+
+
+
+CREATE OR REPLACE PROCEDURE usun_sprzet(id INTEGER) language plpgsql as $$
+declare
+	sprzet_istnieje boolean;
+begin
+	sprzet_istnieje := EXISTS(SELECT 1 FROM sprzety s WHERE s.id = usun_sprzet.id);
+	if not sprzet_istnieje then
+		raise exception 'Sprzet o takim id nie istnieje';
+	end if;
+
+	DELETE FROM sprzety WHERE id = usun_sprzet.id;
+end $$;
+
+
+
+CREATE OR REPLACE PROCEDURE usun_zespol(id INTEGER) language plpgsql as $$
+declare
+	zespol_istnieje boolean;
+begin
+	zespol_istnieje := EXISTS(SELECT 1 FROM zespoly z WHERE z.id = usun_zespol.id);
+	if not zespol_istnieje then
+		raise exception 'Zespol o takim id nie istnieje';
+	end if;
+
+	DELETE FROM zespoly WHERE id = usun_zespol.id;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE usun_zgloszenie(id INTEGER) language plpgsql as $$
+declare
+	zgloszenie_istnieje boolean;
+begin
+	zgloszenie_istnieje := EXISTS(SELECT 1 FROM zgloszenia z WHERE z.id = usun_zgloszenie.id);
+	if not zgloszenie_istnieje then
+		raise exception 'Zgloszenie o takim id nie istnieje';
+	end if;
+
+	DELETE FROM zgloszenia WHERE id = usun_zgloszenie.id;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE usun_klienta_i_jego_sprzet(id INTEGER) language plpgsql as $$
+declare
+	klient_istnieje boolean;
+begin
+	klient_istnieje := EXISTS(SELECT 1 FROM klienci k WHERE k.id = usun_klienta.id);
+	if not klient_istnieje then
+		raise exception 'Klient o takim id nie istnieje';
+	end if;
+
+	DELETE FROM klienci WHERE id = usun_klienta.id;
+	DELETE FROM sprzety WHERE id_klienta = usun_klienta.id;
+end $$;

@@ -1,0 +1,19 @@
+CREATE VIEW dzialania_widok as SELECT s.opis as sprzet, CONCAT(p.imie,' ', p.nazwisko) as pracownik, d.data, d.opis
+FROM pracownicy p JOIN zgloszenia z ON p.id = z.id_pracownika JOIN dzialania d ON z.id = d.id_zgloszenia JOIN
+sprzety s ON s.id = z.id_sprzetu
+ORDER BY s.opis DESC, data DESC;
+
+CREATE VIEW klienci_widok as SELECT imie, nazwisko, telefon FROM klienci;
+
+CREATE VIEW pracownicy_widok as SELECT p.imie, p.nazwisko, z.specjalizacja FROM pracownicy p JOIN zespoly z ON p.id_zespolu = z.id;
+
+CREATE VIEW zgloszenia_widok as SELECT CONCAT(p.imie,' ', p.nazwisko) as pracownik, k.telefon as telefon_klienta, s.opis as sprzet,
+z.status, z.usterka, z.data_przyjecia, z.data_zakonczenia FROM pracownicy p JOIN zgloszenia z ON p.id = z.id_pracownika
+JOIN sprzety s ON z.id_sprzetu = s.id JOIN klienci k ON k.id = s.id_klienta;
+
+CREATE VIEW zespoly_widok as SELECT z.specjalizacja, string_agg(p.imie || ' ' || p.nazwisko, ', ') AS pracownicy
+FROM zespoly z left join pracownicy p on z.id = p.id_zespolu group by z.id, z.specjalizacja order by z.specjalizacja;
+
+CREATE VIEW sprzety_widok as SELECT s.opis, CONCAT(k.imie, ' ', k.nazwisko) as klient, k.telefon as telefon_klienta, s.odbior FROM sprzety s JOIN klienci k ON s.id_klienta = k.id;
+
+CREATE VIEW konta_widok AS SELECT p.imie, p.nazwisko, k.nazwa, k.haslo, k.rola FROM konta k JOIN pracownicy p ON p.id = k.id_pracownika;
