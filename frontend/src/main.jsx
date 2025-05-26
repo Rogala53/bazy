@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')).render(
       <Route path='/login' element={<Login />} />
       <Route path="/create-user" element={<CreateUser />} />
       <Route path="/menu" element={<Menu />} />
-      <Route path="/table/:tableName" element={<Table />} />
+      <Route path="/table/:tableName/:edit?" element={<Table />} />
     </Routes>
   </HashRouter>
   </StrictMode>

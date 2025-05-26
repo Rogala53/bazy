@@ -4,7 +4,7 @@
 
 #### w xampp/htdocs stworzyc nowy folder projektu np. 'bazy' a w nim folder api
 #### do folderu api wkleić pliki z folderu 'backend'
-#### zainstalować vite i potrzebne node modules
-#### do folderu 'bazy' wkleić zawartość pliku frontend/dist.
+#### zainstalować vite i potrzebne node modules w folderze frontend 
+#### do folderu 'bazy' wkleić zawartość folderu frontend/dist.
 #### jeśli plik dist nie istnieje uruchomić w terminalu komende 'npm run build'
 #### w pgadmin pododawać wszystkie tabele, procedury, funkcje i widoki

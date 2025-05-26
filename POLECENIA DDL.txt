@@ -3,7 +3,7 @@ POLECENIA DDL
 CREATE TABLE klienci (
 	id SERIAL PRIMARY KEY,
 	imie VARCHAR(20),
-	nazwisko VARCHAR(20),
+	nazwisko VARCHAR(30),
 	telefon CHAR(9) UNIQUE NOT NULL,
 	CONSTRAINT cyfry CHECK (telefon ~ '^[0-9]{9}$')
 );
@@ -31,28 +31,39 @@ CREATE TABLE pracownicy (
 CREATE TABLE zgloszenia (
 	id SERIAL PRIMARY KEY,
 	id_sprzetu INTEGER NOT NULL,
-	id_pracownika INTEGER NOT NULL,
-	status VARCHAR(30) NOT NULL DEFAULT 'przygotowywanie',
+	status VARCHAR(30) NOT NULL DEFAULT 'przyjety',
 	data_przyjecia DATE NOT NULL CHECK (data_przyjecia <= data_zakonczenia),
 	data_zakonczenia DATE CHECK (data_zakonczenia >= data_przyjecia),
 	usterka VARCHAR(45) NOT NULL,
-	CONSTRAINT fk_sprzet FOREIGN KEY (id_sprzetu) REFERENCES sprzety(id),
-	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id)
+	CONSTRAINT fk_sprzet FOREIGN KEY (id_sprzetu) REFERENCES sprzety(id)
 );
 
 CREATE TABLE dzialania (
 	id SERIAL PRIMARY KEY,
 	id_zgloszenia INTEGER NOT NULL,
+	id_pracownika INTEGER NOT NULL,
 	data DATE NOT NULL,
 	opis VARCHAR(100) NOT NULL,
-	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id)
+	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id),
+	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id)
 );
 
-CREATE TABLE konta (
-	nazwa VARCHAR(20) PRIMARY KEY,
-	haslo CHAR(64) NOT NULL,
-	id_pracownika INTEGER UNIQUE NOT NULL,
-    rola VARCHAR(20) NOT NULL,
 
-    CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id)
-);
+
+CREATE USER admin;
+
+CREATE GROUP admins;
+
+GRANT ALL PRIVILEGES ON dzialania, klienci, pracownicy, sprzety, zespoly, zgloszenia TO admins;
+
+ALTER GROUP admins ADD USER admin
+
+CREATE GROUP pracownicy;
+
+GRANT SELECT, INSERT, UPDATE ON dzialania, klienci, sprzety, zgloszenia TO pracownicy;
+
+
+GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok TO pracownicy
+
+
+GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok, pracownicy_widok, zespoly_widok TO admins

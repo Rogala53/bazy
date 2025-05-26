@@ -1,5 +1,7 @@
 <?php
-    include 'connect.php';
+include_once 'classes/User.php';
+include_once 'classes/db_handler.php';
+session_start();
 try {
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $raw_data = file_get_contents("php://input");
@@ -13,8 +15,15 @@ try {
         }
 
         $table_name = $data['tableName'];
-        $table_data = $db_handler->get_table_view($table_name);
-        echo json_encode(['success' => true, 'data' => $table_data]);
+        $db_handler = new db_handler('localhost', 'serwisIT');
+        $user = $_SESSION['user'];
+        $role = $user->get_role();
+        $db_handler->connect($user);
+        $table_view = $db_handler->get_table_view($role, $table_name);
+        if(!is_array($table_view)) {
+
+        }
+        echo json_encode(['success' => true, 'data' => $table_view]);
     }
 } catch (Exception $e) {
     http_response_code(400);

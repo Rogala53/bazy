@@ -3,11 +3,17 @@ import { useParams } from "react-router-dom";
 import TableRow from './tableRow';
 import KeyRow from './keyRow';
 import ReturnButton from './returnButton';
+import EditForm from './editForm.jsx';
 export default function Table() {
-    const { tableName } = useParams();
+    const {tableName, edit} = useParams();
+
     const [data, setData] = useState([]);
     const [keys, setKeys] = useState([]);
     const [error, setError] = useState(null);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [role, setRole] = useState();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -25,16 +31,26 @@ export default function Table() {
                 const result = await response.json();
 
                 if (!result.success) {
-                    throw new Error("success nie jest true stary");
+                    throw new Error("Nie udalo się pobrac danych");
                 }
 
-                if (result.data && result.data.length > 0) {
+                if (result.data && result.data.length > 0 && Array.isArray(result.data)) {
                     setData(result.data);
                     setKeys(Object.keys(result.data[0]));
                 } else {
                     setData([]);
                     setKeys([]);
                 }
+
+                const responseRole = await fetch ('api/get_role.php', {
+                    method: "GET"
+                });
+
+                if(!responseRole.ok) {
+                    throw new Error(`HTTP error! Status: ${responseRole.status}`);
+                }
+                const resultRole = await responseRole.json();
+                setRole(resultRole.role);
             } catch(error) {
                 console.error("Wystąpił błąd podczas pobierania danych", error);
                 setError(error.message);
@@ -45,8 +61,21 @@ export default function Table() {
         }
     }, [tableName]);
 
+    function handleEditClick(row) {
+        setSelectedRow(row);
+        setShowEditForm(true);
+    }
+
+    function handleModalClose() {
+        setShowEditForm(false);
+        setSelectedRow(null);
+    }
+    function handleSave(editedRow) {
+        console.log("tu zapisywanie do bazy",  editedRow);
+    }
     return (
         <>
+            <title>{tableName}</title>
             {error && <p style={styles.error}>{error}</p> }
             <ReturnButton />
             <div className="table-container">
@@ -62,7 +91,12 @@ export default function Table() {
                         </thead>
                         <tbody>
                         {data.map((row, index) => (
-                            <TableRow key={index} tableRow={row} />
+                            <TableRow
+                                key={index}
+                                tableRow={row}
+                                edit={edit}
+                                onEditClick={handleEditClick}
+                            />
                         ))}
                         </tbody>
                     </table>
@@ -70,6 +104,13 @@ export default function Table() {
                             <div>Brak danych do wyświetlenia</div>
                         )}
             </div>
+            {(edit && edit === 'edit' && role === 'admin' ) ? (
+            <EditForm
+                tableRow={selectedRow}
+                isVisible={showEditForm}
+                onClose={handleModalClose}
+                onSave={handleSave}
+            /> ) : null};
         </>
     );
 }

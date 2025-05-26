@@ -7,8 +7,9 @@ export default function SignOutButton() {
                 method: "POST",
             });
             if (!response.ok) {
-                throw new Error("Response nie okej stary");
+                throw new Error(response.status);
             }
+            sessionStorage.clear();
         } catch (error) {
             console.error("Błąd: ", error);
         }

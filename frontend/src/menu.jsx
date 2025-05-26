@@ -38,6 +38,7 @@ export default function Menu() {
     }, []);
     return (
         <>
+            <title>Menu</title>
             {error && <p style={styles.error}>{error}</p>}
             <SignOutButton />
             <div className="menu-container">

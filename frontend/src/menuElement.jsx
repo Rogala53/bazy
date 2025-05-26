@@ -8,7 +8,7 @@ export default function MenuElement({tableName, role}) {
             <span className="table-name">{tableName}</span>
             <div className="button-group">
                 {isAdmin && (
-                    <Link to={`/table/${tableName}`} className="btn edit-button">Edytuj</Link>
+                    <Link to={`/table/${tableName}/edit`} className="btn edit-button">Edytuj</Link>
                 )}
                 <Link to={`/table/${tableName}`} className="btn show-button">Pokaż</Link>
             </div>

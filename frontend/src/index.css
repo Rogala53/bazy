@@ -65,7 +65,7 @@ input {
   border-bottom: 1px solid #ddd;
   padding: 20px 0;
 }
-label {
+.label {
   display: inline;
   position: relative;
   transition: all 0.2s ease-in-out;
@@ -130,6 +130,9 @@ tr td {
 .edit-button {
   background-color: #004085;
   color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
 }
 .edit-button:hover {
   background-color: #002752;
@@ -140,6 +143,18 @@ tr td {
 }
 .show-button:hover {
   background-color: #d6d8db;
+}
+
+.delete-button {
+  background-color: darkred;
+  transition: background-color 0.2s ease;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  &:hover {
+    background-color: #6a0000;
+  }
 }
 .menu-item-header {
   display: flex;
@@ -166,4 +181,11 @@ tr td {
   font-size: 14px;
   font-weight: 500;
   transition: background-color 0.2s ease;
+}
+
+.edit-row {
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  position: absolute;
 }

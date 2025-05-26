@@ -67,10 +67,11 @@ begin
 end $$;
 
 
-CREATE OR REPLACE PROCEDURE dodaj_dzialanie(id_zgloszenia INTEGER, opis VARCHAR, data_dzialania DATE DEFAULT CURRENT_DATE)
+CREATE OR REPLACE PROCEDURE dodaj_dzialanie(id_zgloszenia INTEGER, id_pracownika INTEGER, opis VARCHAR, data_dzialania DATE DEFAULT CURRENT_DATE)
 language plpgsql as $$
 declare
 	zgloszenie_istnieje boolean;
+	pracownik_istnieje boolean;
 	data_rozpoczecia date;
 begin
 	if id_zgloszenia IS NULL OR data_dzialania IS NULL OR opis IS NULL then
@@ -80,15 +81,19 @@ begin
 	if not zgloszenie_istnieje then
 		raise exception 'Zgloszenie o tym id nie istnieje';
 	end if;
+	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy WHERE id = id_pracownika);
+	if not pracownik_istnieje then
+		raise exception 'Pracownik o tym id nie istnieje';
+	end if;
 	data_rozpoczecia := (SELECT data_przyjecia FROM zgloszenia WHERE id = id_zgloszenia);
 	if data_rozpoczecia > data_dzialania then
 		raise exception 'Data dzialania nie moze byc wczesniejsza niz data_rozpoczecia';
 	end if;
-	INSERT INTO dzialania (id_zgloszenia, data, opis) VALUES (id_zgloszenia, data_dzialania, opis);
+	INSERT INTO dzialania (id_zgloszenia, id_pracownika, data, opis) VALUES (id_zgloszenia, id_pracownika, data_dzialania, opis);
 end $$;
 
 
-CREATE OR REPLACE PROCEDURE dodaj_zgloszenie(id_sprzetu INTEGER, id_pracownika INTEGER, usterka VARCHAR,
+CREATE OR REPLACE PROCEDURE dodaj_zgloszenie(id_sprzetu INTEGER, usterka VARCHAR,
  status VARCHAR DEFAULT 'przyjete', data_przyjecia DATE DEFAULT CURRENT_DATE) language plpgsql as $$
 declare
 	sprzet_istnieje boolean;

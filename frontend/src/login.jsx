@@ -54,13 +54,13 @@ export default function Login() {
       <h1>Zaloguj się</h1>
       {error && <p style={styles.error}>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <label htmlFor="username" id="usernameLabel">
+        <label htmlFor="username" id="usernameLabel" className="label">
           Nazwa użytkownika
         </label>
         <input type="text" name="username"
                id="username"
                value={username} onChange={(e) => setUsername(e.target.value)} />
-        <label htmlFor="password" id="passwordLabel">
+        <label htmlFor="password" id="passwordLabel" className="label">
           Hasło
         </label>
         <input
