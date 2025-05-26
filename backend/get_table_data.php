@@ -1,6 +1,6 @@
 <?php
 include_once 'classes/User.php';
-include_once 'classes/db_handler.php';
+include_once 'classes/Db_handler.php';
 session_start();
 try {
     if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -15,7 +15,7 @@ try {
         }
 
         $table_name = $data['tableName'];
-        $db_handler = new db_handler('localhost', 'serwisIT');
+        $db_handler = new Db_handler('localhost', 'serwisIT');
         $user = $_SESSION['user'];
         $role = $user->get_role();
         $db_handler->connect($user);

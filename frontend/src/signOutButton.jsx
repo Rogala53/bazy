@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 
 export default function SignOutButton() {
-    const signOut = () => {
+    async function signOut() {
         try {
-            const response = fetch("api/sign_out.php", {
+            const response = await fetch("api/sign_out.php", {
                 method: "POST",
             });
             if (!response.ok) {
@@ -16,7 +16,7 @@ export default function SignOutButton() {
     }
     return (
     <>
-        <Link to="/login" className="button" onClick={(e) => { signOut }}>Wyloguj</Link>
+        <Link to="/login" className="button" onClick={signOut}>Wyloguj</Link>
     </>
     )
 }

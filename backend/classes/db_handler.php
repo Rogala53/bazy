@@ -1,6 +1,6 @@
 <?php
 
-class db_handler
+class Db_handler
 {
     private $server_name;
     private $db_name;
@@ -25,12 +25,6 @@ class db_handler
             return true;
         } catch(Exception $e) {
             return false;
-        }
-    }
-    static function logout() {
-        if(session_status() == PHP_SESSION_ACTIVE) {
-            $_SESSION = array();
-            session_destroy();
         }
     }
 
