@@ -1,0 +1,122 @@
+CREATE OR REPLACE FUNCTION pobierz_klienci()
+RETURNS TABLE(id INTEGER, imie VARCHAR, nazwisko VARCHAR, telefon CHAR(9)) as $$
+declare
+	c_klient cursor for select * from klienci;
+	r_klient record;
+begin
+	open c_klient;
+	loop
+		fetch c_klient into r_klient;
+		exit when not found;
+		id := r_klient.id;
+		imie := r_klient.imie;
+		nazwisko := r_klient.nazwisko;
+		telefon := r_klient.telefon;
+		return next;
+	end loop;
+	close c_klient;
+end;
+$$ language plpgsql;
+
+create function pobierz_sprzety()
+returns table(id integer, id_klienta INTEGER, opis TEXT, odbior VARCHAR) as $$
+declare
+	c_sprzet cursor for select * from sprzety;
+	r_sprzet record;
+begin
+	open c_sprzet;
+	loop
+		fetch c_sprzet into r_sprzet;
+		exit when not found;
+		id := r_sprzet.id;
+		id_klienta := r_sprzet.id_klienta;
+		opis := r_sprzet.opis;
+		odbior := r_sprzet.odbior;
+		return next;
+	end loop;
+	close c_sprzet;
+end;
+$$ language plpgsql;
+
+create function pobierz_zgloszenia()
+returns table(id integer, id_sprzetu INTEGER, status VARCHAR, data_przyjecia DATE, data_zakonczenia DATE, usterka TEXT) as $$
+declare
+	c_zgloszenie cursor for select * from zgloszenia;
+	r_zgloszenie record;
+begin
+	open c_zgloszenie;
+	loop
+		fetch c_zgloszenie into r_zgloszenie;
+		exit when not found;
+		id := r_zgloszenie.id;
+		id_sprzetu := r_zgloszenie.id_sprzetu;
+		status := r_zgloszenie.status;
+		data_przyjecia := r_zgloszenie.data_przyjecia;
+		data_zakonczenia := r_zgloszenie.data_zakonczenia;
+		usterka := r_zgloszenie.usterka;
+		return next;
+	end loop;
+	close c_zgloszenie;
+end;
+$$ language plpgsql;
+
+CREATE OR REPLACE FUNCTION pobierz_dzialania()
+RETURNS TABLE(id INTEGER, id_zgloszenia INTEGER, id_pracownika INTEGER, data DATE, opis TEXT) as $$
+declare
+	c_dzialanie cursor for select * from dzialania;
+	r_dzialanie record;
+begin
+	open c_dzialanie;
+	loop
+		fetch c_dzialanie into r_dzialanie;
+		exit when not found;
+		id := r_dzialanie.id;
+		id_zgloszenia := r_dzialanie.id_zgloszenia;
+		id_pracownika := r_dzialanie.id_pracownika;
+		data := r_dzialanie.data;
+		opis := r_dzialanie.opis;
+		return next;
+	end loop;
+	close c_dzialanie;
+end;
+$$ language plpgsql;
+
+
+create function pobierz_pracownicy()
+returns table(id integer, imie VARCHAR, nazwisko VARCHAR, id_zespolu INTEGER) as $$
+declare
+	c_pracownik cursor for select * from pracownicy;
+	r_pracownik record;
+begin
+	open c_pracownik;
+	loop
+		fetch c_pracownik into r_pracownik;
+		exit when not found;
+		id := r_pracownik.id;
+		imie := r_pracownik.imie;
+		nazwisko := r_pracownik.nazwisko;
+		id_zespolu := r_pracownik.id_zespolu;
+		return next;
+	end loop;
+	close c_pracownik;
+end;
+$$ language plpgsql;
+
+
+create function pobierz_zespoly()
+returns table(id integer, specjalizacja VARCHAR) as $$
+declare
+	c_zespol cursor for select * from zespoly;
+	r_zespol record;
+begin
+	open c_zespol;
+	loop
+		fetch c_zespol into r_zespol;
+		exit when not found;
+		id := r_zespol.id;
+		specjalizacja := r_zespol.specjalizacja;
+		return next;
+	end loop;
+	close c_zespol;
+end;
+$$ language plpgsql;

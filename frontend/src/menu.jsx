@@ -2,7 +2,7 @@ import { useState, useEffect} from "react";
 import MenuList from "./menuList";
 import SignOutButton from "./signOutButton";
 export default function Menu() {
-    const username  = sessionStorage.getItem('username');
+    const username  = localStorage.getItem('username');
     const [data, setData] = useState([]);
     const [role, setRole] = useState("");
     const [error, setError] = useState(null);

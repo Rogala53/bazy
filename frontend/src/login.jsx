@@ -40,7 +40,7 @@ export default function Login() {
       }
       const data = await response.json();
       if(data.success) {
-        sessionStorage.setItem('username', data.username);
+        localStorage.setItem('username', data.username);
         navigate(`/menu`);
       } else {
         setError("Nieprawidłowa nazwa użytkownika lub hasło");

@@ -1,0 +1,105 @@
+CREATE OR REPLACE PROCEDURE modyfikuj_klienci(id_klienta INTEGER, imie VARCHAR, nazwisko VARCHAR, telefon CHAR(9)) language plpgsql as $$
+declare
+	klient_istnieje boolean;
+begin
+	klient_istnieje := EXISTS(SELECT 1 FROM klienci k WHERE k.id = id_klienta);
+	if not klient_istnieje then
+		raise exception 'Klient z tym id nie istnieje';
+	end if;
+	UPDATE klienci SET imie = modyfikuj_klienci.imie, nazwisko = modyfikuj_klienci.nazwisko,
+			telefon = modyfikuj_klienci.telefon WHERE id = id_klienta;
+end $$;
+
+CREATE OR REPLACE PROCEDURE modyfikuj_sprzety(id_sprzetu INTEGER, id_klienta INTEGER, opis TEXT, odbior CHAR(3)) language plpgsql as $$
+declare
+	sprzet_istnieje boolean;
+	klient_istnieje boolean;
+begin
+	sprzet_istnieje := EXISTS(SELECT 1 FROM sprzety s WHERE s.id = id_sprzetu);
+	if not sprzet_istnieje then
+		raise exception 'Sprzet z tym id nie istnieje';
+	end if;
+	klient_istnieje := EXISTS(SELECT 1 FROM klienci k WHERE k.id = id_klienta);
+	if not klient_istnieje then
+		raise exception 'Klient z tym id nie istnieje';
+	end if;
+	UPDATE sprzety SET id_klienta = modyfikuj_sprzety.id_klienta, opis = modyfikuj_sprzety.opis,
+			odbior = modyfikuj_sprzety.odbior WHERE id = id_sprzetu;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE modyfikuj_zgloszenia(id_zgloszenia INTEGER, id_sprzetu INTEGER, status VARCHAR, data_przyjecia DATE,
+data_zakonczenia DATE, usterka TEXT) language plpgsql as $$
+declare
+	zgloszenie_istnieje boolean;
+	sprzet_istnieje boolean;
+begin
+	zgloszenie_istnieje := EXISTS(SELECT 1 FROM zgloszenia z WHERE z.id = id_zgloszenia);
+	if not zgloszenie_istnieje then
+		raise exception 'Zgloszenie z tym id nie istnieje';
+	end if;
+	sprzet_istnieje := EXISTS(SELECT 1 FROM sprzety s WHERE s.id = id_sprzetu);
+	if not sprzet_istnieje then
+		raise exception 'Sprzet z tym id nie istnieje';
+	end if;
+	UPDATE zgloszenia SET id_sprzetu = modyfikuj_zgloszenia.id_sprzetu, status = modyfikuj_zgloszenia.status,
+			data_przyjecia = modyfikuj_zgloszenia.data_przyjecia, data_zakonczenia = modyfikuj_zgloszenia.data_zakonczenia,
+			usterka = modyfikuj_zgloszenia.usterka WHERE id = id_zgloszenia;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE modyfikuj_dzialania(id_dzialania INTEGER, id_zgloszenia INTEGER, id_pracownika INTEGER,
+data DATE, opis TEXT) language plpgsql as $$
+declare
+	dzialanie_istnieje boolean;
+	zgloszenie_istnieje boolean;
+	pracownik_istnieje boolean;
+begin
+	dzialanie_istnieje := EXISTS(SELECT 1 FROM dzialania d WHERE d.id = id_dzialania);
+	if not dzialanie_istnieje then
+		raise exception 'Dzialanie z tym id nie istnieje';
+	end if;
+	zgloszenie_istnieje := EXISTS(SELECT 1 FROM zgloszenia z WHERE z.id = id_zgloszenia);
+	if not zgloszenie_istnieje then
+		raise exception 'Zgloszenie z tym id nie istnieje';
+	end if;
+	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.id = id_pracownika);
+	if not pracownik_istnieje then
+		raise exception 'Pracownik z tym id nie istnieje';
+	end if;
+	UPDATE dzialania SET id_zgloszenia = modyfikuj_dzialania.id_zgloszenia, id_pracownika = modyfikuj_dzialania.id_pracownika,
+						data = modyfikuj_dzialania.data, opis = modyfikuj_dzialania.opis
+						WHERE id = modyfikuj_dzialania.id_dzialania;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE modyfikuj_pracownicy(id_pracownika INTEGER, imie VARCHAR, nazwisko VARCHAR, id_zespolu INTEGER)
+language plpgsql as $$
+declare
+	pracownik_istnieje boolean;
+	zespol_istnieje boolean;
+begin
+	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.id = id_pracownika);
+	if not pracownik_istnieje then
+		raise exception 'Pracownik z tym id nie istnieje';
+	end if;
+	zespol_istnieje := EXISTS(SELECT 1 FROM zespoly z WHERE z.id = id_zespolu);
+	if not zespol_istnieje then
+		raise exception 'Zespol z tym id nie istnieje';
+	end if;
+	UPDATE pracownicy SET imie = modyfikuj_pracownicy.imie, nazwisko = modyfikuj_pracownicy.nazwisko,
+						id_zespolu = modyfikuj_pracownicy.id_zespolu WHERE id_pracownika = modyfikuj_pracownicy.id_pracownika;
+end $$;
+
+
+CREATE OR REPLACE PROCEDURE modyfikuj_zespoly(id_zespolu INTEGER, specjalizacja VARCHAR)
+language plpgsql as $$
+declare
+	zespol_istnieje boolean;
+begin
+	zespol_istnieje := EXISTS(SELECT 1 FROM zespoly z WHERE z.id = id_zespolu);
+	if not zespol_istnieje then
+		raise exception 'Zespol z tym id nie istnieje';
+	end if;
+	UPDATE zespoly SET specjalizacja = modyfikuj_zespoly.specjalizacja WHERE id = modyfikuj_zespoly.id_zespolu;
+end $$;

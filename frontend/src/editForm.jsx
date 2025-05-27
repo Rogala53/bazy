@@ -1,13 +1,103 @@
 import React, {useState, useEffect} from "react";
 
-export default function EditForm({tableRow, isVisible, onClose, onSave}) {
+export default function EditForm({tableRow, isVisible, onClose, onSave, tableName}) {
     const [editedRow, setEditedRow] = useState(tableRow || {});
-
     useEffect(() => {
         if(tableRow) {
-            setEditedRow(tableRow);
+            const entries = Object.entries(tableRow);
+            const filteredEntries = entries.slice(1);
+            const filteredRow = Object.fromEntries(filteredEntries);
+            setEditedRow(filteredRow);
         }
     }, [tableRow]);
+
+    function renderInputField(key, value) {
+        if (key === 'odbior') {
+            return (
+                <>
+                    <div key={key} style={styles.inputGroup}>
+                        <label style={styles.label}>{key}</label>
+                        <select
+                            value={value || ''}
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                            style={styles.input}>
+                            <option value="nie">Nie</option>
+                            <option value="tak">Tak</option>
+                        </select>
+                    </div>
+                </>
+            )
+        }
+        else if(key === 'status') {
+            return (
+                <>
+                    <div key={key} style={styles.inputGroup}>
+                        <label style={styles.label}>{key}</label>
+                        <select
+                            value={value || ''}
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                            style={styles.input}>
+                            <option value="przyjete">przyjete</option>
+                            <option value="w_trakcie">W trakcie</option>
+                            <option value="zakonczony">Zakończony</option>
+                        </select>
+                    </div>
+                </>
+            )
+        }
+        else if(key.startsWith("data")) {
+            const date = new Date();
+            let day = String(date.getDate()).padStart(2, '0');
+            let month = String(date.getMonth() + 1).padStart(2, '0');
+            let year = date.getFullYear();
+
+            let currentDate = `${year}.${month}.${day}`;
+            return (
+                <>
+                    <div key={key} style={styles.inputGroup}>
+                        <label style={styles.label}>{key}</label>
+                        <input
+                            type="date"
+                            value={(value == null || value == '-') ? currentDate : value}
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                            style={styles.input}>
+                        </input>
+                    </div>
+                </>
+            )
+        }
+        else if(Number.isInteger(parseInt(value))) {
+            return (
+            <>
+                <div key={key} style={styles.inputGroup}>
+                    <label style={styles.label}>{key}</label>
+                    <input
+                        type="number"
+                        min="1"
+                        value={value || ''}
+                        onChange={(e) => handleInputChange(key, e.target.value)}
+                        style={styles.input}>
+                    </input>
+                </div>
+            </>
+            )
+        }
+        else {
+            return (
+                <>
+                    <div key={key} style={styles.inputGroup}>
+                        <label style={styles.label}>{key}</label>
+                        <input
+                            type="text"
+                            value={value || ''}
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                            style={styles.input}>
+                        </input>
+                    </div>
+                </>
+            )
+        }
+    }
     function handleInputChange(key, value) {
         setEditedRow(prev => ({
             ...prev,
@@ -15,13 +105,30 @@ export default function EditForm({tableRow, isVisible, onClose, onSave}) {
         }));
     }
 
-    function saveChanges() {
-        // Tutaj możesz dodać logikę zapisywania
-        console.log('Zapisywanie zmian:', editedRow);
-        if(onSave) {
-            onSave(editedRow);
+    async function saveChanges() {
+        const dataToSave = {
+            ...Object.entries(tableRow)[0] && {[Object.keys(tableRow)[0]]: Object.values(tableRow)[0]},
+            ...editedRow
+        };
+        try {
+            const response = await fetch('api/edit_row.php', {
+                method: "POST",
+                body: JSON.stringify({
+                    dataToSave: dataToSave,
+                    tableName: tableName
+                })
+            })
+            if (!response.ok) {
+                throw new Error(`${response.message}`);
+            }
+            console.log("sukces");
+            if (onSave) {
+                onSave(dataToSave);
+            }
+            onClose();
+        } catch (error) {
+            console.error(error);
         }
-        onClose();
     }
 
     function cancelEdit() {
@@ -37,17 +144,9 @@ export default function EditForm({tableRow, isVisible, onClose, onSave}) {
                     <h3 style={styles.editFormTitle}>Edytuj wiersz</h3>
 
                     <div style={styles.formContainer}>
-                        {Object.entries(editedRow).map(([key, value]) => (
-                            <div key={key} style={styles.inputGroup}>
-                                <label style={styles.label}>{key}:</label>
-                                <input
-                                    type="text"
-                                    value={value === null ? '' : String(value)}
-                                    onChange={(e) => handleInputChange(key, e.target.value)}
-                                    style={styles.input}
-                                />
-                            </div>
-                        ))}
+                        {Object.entries(editedRow).map(([key, value]) =>
+                            renderInputField(key, value)
+                        )}
                     </div>
 
                     <div style={styles.buttonContainer}>

@@ -9,6 +9,7 @@ export default function SignOutButton() {
             if (!response.ok) {
                 throw new Error(response.status);
             }
+            localStorage.clear();
             sessionStorage.clear();
         } catch (error) {
             console.error("Błąd: ", error);

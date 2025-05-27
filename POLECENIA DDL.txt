@@ -1,5 +1,3 @@
-POLECENIA DDL
-
 CREATE TABLE klienci (
 	id SERIAL PRIMARY KEY,
 	imie VARCHAR(20),
@@ -47,23 +45,3 @@ CREATE TABLE dzialania (
 	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id),
 	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id)
 );
-
-
-
-CREATE USER admin;
-
-CREATE GROUP admins;
-
-GRANT ALL PRIVILEGES ON dzialania, klienci, pracownicy, sprzety, zespoly, zgloszenia TO admins;
-
-ALTER GROUP admins ADD USER admin
-
-CREATE GROUP pracownicy;
-
-GRANT SELECT, INSERT, UPDATE ON dzialania, klienci, sprzety, zgloszenia TO pracownicy;
-
-
-GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok TO pracownicy
-
-
-GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok, pracownicy_widok, zespoly_widok TO admins

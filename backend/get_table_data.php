@@ -15,15 +15,21 @@ try {
         }
 
         $table_name = $data['tableName'];
+        if(array_key_exists('edit', $data)) {
+            $from_exact_table = $data['edit'] === 'edit';
+        } else {
+            $from_exact_table = false;
+        }
         $db_handler = new Db_handler('localhost', 'serwisIT');
         $user = $_SESSION['user'];
         $role = $user->get_role();
         $db_handler->connect($user);
-        $table_view = $db_handler->get_table_view($role, $table_name);
-        if(!is_array($table_view)) {
-
+        if($from_exact_table){
+            $data = $db_handler->get_table_data($role, $table_name);
+        } else {
+            $data = $db_handler->get_table_view($role, $table_name);
         }
-        echo json_encode(['success' => true, 'data' => $table_view]);
+        echo json_encode(['success' => true, 'data' => $data]);
     }
 } catch (Exception $e) {
     http_response_code(400);

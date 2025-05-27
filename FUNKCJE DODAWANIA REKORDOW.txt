@@ -97,9 +97,8 @@ CREATE OR REPLACE PROCEDURE dodaj_zgloszenie(id_sprzetu INTEGER, usterka VARCHAR
  status VARCHAR DEFAULT 'przyjete', data_przyjecia DATE DEFAULT CURRENT_DATE) language plpgsql as $$
 declare
 	sprzet_istnieje boolean;
-	pracownik_istnieje boolean;
 begin
-	if id_sprzetu IS NULL OR id_pracownika IS NULL OR
+	if id_sprzetu IS NULL OR
 	usterka IS NULL then
 		raise exception 'Wartosci nie moga byc puste';
 	end if;
@@ -107,11 +106,7 @@ begin
 	if not sprzet_istnieje then
 		raise exception 'Sprzet o takim id nie istnieje';
 	end if;
-	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy WHERE id = id_pracownika);
-	if not pracownik_istnieje then
-		raise exception 'Pracownik o takim id nie istnieje';
-	end if;
 
-	INSERT INTO zgloszenia (id_sprzetu, id_pracownika, status, data_przyjecia, usterka)
-	VALUES (id_sprzetu, id_pracownika, status, data_przyjecia, usterka);
+	INSERT INTO zgloszenia (id_sprzetu, status, data_przyjecia, usterka)
+	VALUES (id_sprzetu, status, data_przyjecia, usterka);
 end $$;

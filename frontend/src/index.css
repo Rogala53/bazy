@@ -103,29 +103,28 @@ input {
 }
 table {
   width: 80%;
-  border: 1px solid #3c3c3c;
   border-collapse: collapse;
   margin: 0 auto;
   margin-top: 20px;
 }
 th {
-  border-bottom: 1px solid black;
   background-color: #004085;
   color: #fff;
   font-weight: 700;
   font-size: 1.2em;
   padding: 25px;
   text-transform: uppercase;
+  tr {
+    border: none;
+  }
 }
 tr {
-  border: 1px solid #ddd;
   padding: 15px;
 }
 tr td {
   padding: 15px;
   font-size: 1.12em;
   text-align: center;
-  border: 2px solid #ddd;
 }
 .edit-button {
   background-color: #004085;
@@ -188,4 +187,13 @@ tr td {
   display: flex;
   justify-content: center;
   position: absolute;
+}
+.table-key-link {
+  color: #fff;
+  text-decoration: none;
+  transition: scale 0.2s ease;
+}
+.table-key-link:hover {
+  text-decoration: underline;
+  scale: 1.1;
 }

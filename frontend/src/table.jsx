@@ -22,7 +22,10 @@ export default function Table() {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({tableName}),
+                    body: JSON.stringify({
+                        tableName: tableName,
+                        edit: edit
+                    }),
                 });
 
                 if(!response.ok) {
@@ -71,7 +74,7 @@ export default function Table() {
         setSelectedRow(null);
     }
     function handleSave(editedRow) {
-        console.log("tu zapisywanie do bazy",  editedRow);
+        console.log("Tu zapisywanie zmian w bazie", editedRow);
     }
     return (
         <>
@@ -87,6 +90,9 @@ export default function Table() {
                          {keys.map((key, index) => (
                              <KeyRow key={index} keyData={key} />
                          ))}
+                            {edit === 'edit' ? (
+                                <th>edycja</th> ) : null
+                            }
                         </tr>
                         </thead>
                         <tbody>
@@ -96,6 +102,7 @@ export default function Table() {
                                 tableRow={row}
                                 edit={edit}
                                 onEditClick={handleEditClick}
+                                tableName={tableName}
                             />
                         ))}
                         </tbody>
@@ -110,6 +117,7 @@ export default function Table() {
                 isVisible={showEditForm}
                 onClose={handleModalClose}
                 onSave={handleSave}
+                tableName={tableName}
             /> ) : null};
         </>
     );

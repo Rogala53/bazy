@@ -1,13 +1,32 @@
 import React from 'react';
-export default function TableRow({tableRow, edit, onEditClick}) {
+export default function TableRow({tableRow, edit, onEditClick, tableName}) {
     const isEdit = edit === 'edit';
     function showEditComponent() {
         onEditClick(tableRow);
     }
 
-    function deleteRow() {
-        // Tutaj możesz dodać logikę usuwania
-        console.log('Usuwanie wiersza:', tableRow);
+    async function deleteRow(rowId) {
+        try {
+            const response = await fetch('api/delete_row.php', {
+                method: "POST",
+                body: JSON.stringify({
+                    id: rowId,
+                    tableName: tableName,
+                }),
+            })
+            if(!response.ok) {
+                throw new Error("Problem z połączeniem z api.")
+            }
+            const data = await response.json();
+            const success = data.success;
+            if(success) {
+                console.log(data.message);
+                window.location.reload();
+            }
+
+        } catch(error) {
+            console.error(error)
+        }
     }
 
 
@@ -28,7 +47,7 @@ export default function TableRow({tableRow, edit, onEditClick}) {
                     </button>
                     <button
                         className="delete-button"
-                        onClick={deleteRow}
+                        onClick={() => deleteRow(tableRow['id'])}
                     >
                         Usuń
                     </button>
