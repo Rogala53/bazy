@@ -11,3 +11,27 @@ GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok 
 
 
 GRANT SELECT ON dzialania_widok, klienci_widok, sprzety_widok, zgloszenia_widok, pracownicy_widok, zespoly_widok TO admins;
+
+
+
+
+CREATE OR REPLACE PROCEDURE dodaj_konto(nazwa VARCHAR, haslo TEXT, grupa VARCHAR) language plpgsql as $$
+declare
+	konto_istnieje boolean;
+	grupa_istnieje boolean;
+	stworz_konto TEXT;
+	dodaj_do_grupy TEXT;
+begin
+	konto_istnieje := EXISTS(SELECT 1 FROM pg_roles WHERE rolname = nazwa);
+	if konto_istnieje then
+		raise exception 'Konto o takiej nazwie już istnieje';
+	end if;
+	grupa_istnieje := EXISTS(SELECT 1 FROM pg_roles WHERE rolname = grupa);
+	if not grupa_istnieje then
+		raise exception 'Grupa % nie istnieje', grupa;
+	end if;
+	stworz_konto := 'CREATE USER ' || nazwa || ' PASSWORD ' || quote_literal(haslo);
+	EXECUTE stworz_konto;
+	dodaj_do_grupy := 'ALTER GROUP ' || grupa || ' ADD USER ' || nazwa;
+	EXECUTE dodaj_do_grupy;
+end $$;

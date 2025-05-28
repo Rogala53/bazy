@@ -88,7 +88,7 @@ begin
 		raise exception 'Zespol z tym id nie istnieje';
 	end if;
 	UPDATE pracownicy SET imie = modyfikuj_pracownicy.imie, nazwisko = modyfikuj_pracownicy.nazwisko,
-						id_zespolu = modyfikuj_pracownicy.id_zespolu WHERE id_pracownika = modyfikuj_pracownicy.id_pracownika;
+						id_zespolu = modyfikuj_pracownicy.id_zespolu WHERE id = modyfikuj_pracownicy.id_pracownika;
 end $$;
 
 
