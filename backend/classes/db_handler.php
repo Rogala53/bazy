@@ -71,7 +71,8 @@ class Db_handler
                 throw new Exception("You do not have permission to this table");
             }
             $func_name = "pobierz_$table_name()";
-            $query = "SELECT * FROM $func_name";
+            $order = "ORDER BY id DESC";
+            $query = "SELECT * FROM $func_name $order";
             $result = pg_query($this->db, $query);
             if(!$result) {
                 throw new Exception("Could not execute query.");
@@ -199,7 +200,7 @@ class Db_handler
         $first_name = $data['imie'];
         $last_name = $data['nazwisko'];
         $team_id = $data['id_zespolu'];
-        $query = "CALL modyfikuj_pracownicy($id, '$first_name', '$last_name', '$team_id')";
+        $query = "CALL modyfikuj_pracownicy($id, '$first_name', '$last_name', $team_id)";
         $result = pg_query($this->db, $query);
         if(!$result) {
             throw new Exception("Could not execute query.");
@@ -230,6 +231,32 @@ class Db_handler
                 throw new Exception("Could not execute query.");
             }
             return true;
+        } catch(Exception $e) {
+            return false;
+        }
+    }
+
+    public function create_account($username, $password, $role) {
+        $password = hash('sha256', $password);
+        $group = $role === 'admin' ? 'admins' : 'pracownicy';
+        try {
+            $set_role_query = "SET ROLE admins";
+            $set_role = pg_query($this->db, $set_role_query);
+            if(!$set_role) {
+                throw new Exception("Nie udało się ustawić roli.");
+            }
+            $query = "CALL dodaj_konto('$username', '$password', '$group')";
+            $result = pg_query($this->db, $query);
+            if(!$result) {
+                throw new Exception(pg_last_error());
+            }
+            $unset_role_query = "RESET ROLE";
+            $unset_role = pg_query($this->db, $unset_role_query);
+            if(!$unset_role) {
+                throw new Exception("Nie udało się zresetować roli.");
+            } 
+            return true;
+            
         } catch(Exception $e) {
             return false;
         }

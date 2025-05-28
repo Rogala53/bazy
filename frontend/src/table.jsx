@@ -9,7 +9,8 @@ export default function Table() {
 
     const [data, setData] = useState([]);
     const [keys, setKeys] = useState([]);
-    const [error, setError] = useState(null);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
     const [showEditForm, setShowEditForm] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [role, setRole] = useState();
@@ -34,12 +35,13 @@ export default function Table() {
                 const result = await response.json();
 
                 if (!result.success) {
-                    throw new Error("Nie udalo się pobrac danych");
+                    throw new Error(result.message);
                 }
 
                 if (result.data && result.data.length > 0 && Array.isArray(result.data)) {
                     setData(result.data);
                     setKeys(Object.keys(result.data[0]));
+                    setMessage(result.message);
                 } else {
                     setData([]);
                     setKeys([]);
@@ -79,6 +81,7 @@ export default function Table() {
     return (
         <>
             <title>{tableName}</title>
+            {message && <p style={styles.message}>{message}</p>}
             {error && <p style={styles.error}>{error}</p> }
             <ReturnButton />
             <div className="table-container">
@@ -126,4 +129,7 @@ const styles = {
     error: {
         color: "red",
     },
+    message: {
+        color: "green",
+    }
 };

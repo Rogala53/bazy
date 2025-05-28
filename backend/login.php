@@ -13,25 +13,19 @@ try {
 
         $username = $data['username'];
         $password = $data['password'];
-        if(!isset($_SESSION['user'])) {
-            $_SESSION['user'] = new User($username, $password);
-
-        }
+        $password = hash('sha256', $password);
+        $user = new User($username, $password);
         $db_handler = new Db_handler('localhost', 'serwisIT');
-        $user = $_SESSION['user'];
         $success = $db_handler->connect($user);
         if($success) {
             $user->set_role($db_handler->get_role($user));
             $username = $user->get_username();
             $_SESSION['user'] = $user;
             echo json_encode(['success' => true, 'username' => $username]);
-        } else {
-            unset($_SESSION['user']);
-            unset($_SESSION['role']);
-            echo json_encode(['success' => false]);
+        } else {;
+            echo json_encode(['success' => false, 'message' => "Nie udało się zalogować"]);
         }
     }
 } catch (Exception $e) {
-    header("Content-type: application/json");
-    echo json_encode(['success' => false, 'message' => pg_last_error()]);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

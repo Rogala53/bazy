@@ -44,6 +44,7 @@ export default function Menu() {
             <div className="menu-container">
                 <h1 className="menu-header">Witaj, {username}!</h1>
                 <MenuList data={data} role={role} />
+                
             </div>
         </>
     );

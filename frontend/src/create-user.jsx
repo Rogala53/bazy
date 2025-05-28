@@ -2,15 +2,13 @@ import { useEffect, useState } from "react";
 import "./index.css";
 import { initLabelAnimations } from "./labelAnimations";
 import { validateInputAnimation } from "./validateInputAnimation";
-import {Link, useNavigate} from "react-router-dom";
-
+import ReturnButton from "./returnButton";
 export default function CreateUser() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [role, setRole] = useState("user");
-  const navigate =  useNavigate();
   const inputs = [
     {
       input: "username",
@@ -41,10 +39,6 @@ export default function CreateUser() {
       setError("Hasła nie są takie same!");
       return;
     }
-    if (password.length < 8) {
-      setError("Długość hasła musi wynosić przynajmniej 8 znaków")
-       return;
-    }
     const accountData = {
       username,
       password,
@@ -67,7 +61,6 @@ export default function CreateUser() {
 
       if(data.success) {
         alert("Konto zostało utworzone");
-        navigate('/login');
       } else {
         setError(data.message);
       }
@@ -78,19 +71,21 @@ export default function CreateUser() {
   };
 
   return (
-    <div id="container">
-      <h1 >Stwórz nowego użytkownika</h1>
+    <>
+    <ReturnButton />
+    <div className="container" style={styles.container}>
+      <h1 style={styles.h1}>Stwórz nowego użytkownika</h1>
       {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={handleSubmit}>
+      <form style={styles.form} onSubmit={handleSubmit}>
         <select name="role" id="selectRole" style={styles.select} value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="user" style={styles.option}>
-            Użytkownik
+            Pracownik
           </option>
           <option value="admin" style={styles.option}>
             Admin
           </option>
         </select>
-        <label htmlFor="username" id="usernameLabel">
+        <label htmlFor="username" className="label" id="usernameLabel">
           Nazwa użytkownika
         </label>
         <input
@@ -100,7 +95,7 @@ export default function CreateUser() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <label htmlFor="password" id="passwordLabel">
+        <label htmlFor="password" className="label" id="passwordLabel">
           Hasło
         </label>
         <input
@@ -113,6 +108,7 @@ export default function CreateUser() {
         <label
           htmlFor="confirmPassword"
           id="confirmPasswordLabel"
+          className="label"
         >
           Powtórz hasło
         </label>
@@ -123,19 +119,33 @@ export default function CreateUser() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
-
-        <Link to="/login" style={styles.link}>Zaloguj się</Link>
-        <button type="submit" style={styles.button} id="createAccountButton">
+        <button type="submit" className="form-button" styles={styles.button} id="createAccountButton">
           Stwórz
         </button>
       </form>
     </div>
+    </>
   );
 }
 const styles = {
-  select: {
-    backgroundColor: "#2b2b2b",
-    color: "whitesmoke",
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    left: "55%",
+  },
+  h1: {
+    textAlign: "left",
+    width: "70%",
+
+  },
+  form: {
+    width: "50%",
+  },
+  error: {
+    color: "red",
+  },
+    select: {
     cursor: "pointer",
     borderRadius: "10px",
     fontSize: "16px",
@@ -143,35 +153,10 @@ const styles = {
     height: "40px",
   },
   option: {
-    backgroundColor: "#2b2b2b",
-    color: "whitesmoke",
     cursor: "pointer",
     padding: "10px",
     borderRadius: "10px",
     height: "30px",
   },
-  button: {
-    display: "inline",
-    width: "50%",
-    position: "relative",
-    float: "right",
-    right: "-120px",
-    padding: "10px",
-    borderRadius: "10px",
-    border: "1px solid black",
-    backgroundColor: " #c8c8c8",
-    cursor: "pointer",
-    fontSize: "14px",
-  },
-  link: {
-    display: "inline",
-    color: "whitesmoke",
-    position: "relative",
-    top: "30px",
-    textAlign: "left",
-  },
-  error: {
-    color: "red",
-    position: "relative",
-  },
+
 };

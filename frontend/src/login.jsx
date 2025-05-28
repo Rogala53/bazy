@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { initLabelAnimations } from "./labelAnimations";
 import { validateInputAnimation } from "./validateInputAnimation";
 import "./index.css";
@@ -36,7 +36,7 @@ export default function Login() {
       });
 
       if(!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        throw new Error(response.message);
       }
       const data = await response.json();
       if(data.success) {
@@ -46,11 +46,11 @@ export default function Login() {
         setError("Nieprawidłowa nazwa użytkownika lub hasło");
       }
     } catch (error) {
-      setError("ERROR: ", error);
+      setError(error.message);
     }
   }
   return (
-    <div className="login-container">
+    <div className="container">
       <h1>Zaloguj się</h1>
       {error && <p style={styles.error}>{error}</p>}
       <form onSubmit={handleSubmit}>
@@ -70,7 +70,7 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="login-button">
+        <button type="submit" className="form-button">
           Zaloguj
         </button>
       </form>
