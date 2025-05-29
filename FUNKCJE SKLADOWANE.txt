@@ -1,10 +1,10 @@
 CREATE OR REPLACE FUNCTION znajdz_grupe(nazwa_uzytkownika VARCHAR)
 RETURNS VARCHAR as $$
 declare
-	oid_uzytkownika oid;
+	oid_uzytkownika INTEGER;
 	grupa VARCHAR;
 begin
-	oid_uzytkownika := (SELECT oid FROM pg_roles WHERE rolname = nazwa_uzytkownika AND rolpassword = haslo);
+	oid_uzytkownika := (SELECT oid FROM pg_roles WHERE rolname = nazwa_uzytkownika);
 	if oid_uzytkownika IS NULL THEN
 		return 'null';
 	end if;
@@ -42,7 +42,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION znajdz_tabele_dostepne_dla_admina() 
+CREATE OR REPLACE FUNCTION znajdz_tabele_dostepne_dla_adminow() 
 RETURNS TABLE(tablename information_schema.sql_identifier) AS $$
 BEGIN
 	RETURN QUERY (SELECT DISTINCT table_name

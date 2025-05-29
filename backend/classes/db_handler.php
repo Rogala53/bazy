@@ -64,9 +64,6 @@ class Db_handler
     }
     public function get_table_data($role, $table_name) {
         try {
-            if ($role != 'admin') {
-                throw new Exception("Invalid role.");
-            }
             if(!$this->has_grant($role, $table_name)) {
                 throw new Exception("You do not have permission to this table");
             }

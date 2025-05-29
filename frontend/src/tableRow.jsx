@@ -1,5 +1,6 @@
 import React from 'react';
-export default function TableRow({tableRow, edit, onEditClick, tableName}) {
+export default function TableRow({tableRow, edit, onEditClick, tableName, role}) {
+    const isAdmin = role === 'admin';
     const isEdit = edit === 'edit';
     function showEditComponent() {
         onEditClick(tableRow);
@@ -45,12 +46,14 @@ export default function TableRow({tableRow, edit, onEditClick, tableName}) {
                     >
                         Edytuj
                     </button>
+                    {isAdmin &&
                     <button
                         className="delete-button"
                         onClick={() => deleteRow(tableRow['id'])}
                     >
                         Usuń
                     </button>
+                    }
                 </td>
                 )}
             </tr>

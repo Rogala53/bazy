@@ -106,6 +106,7 @@ export default function Table() {
                                 edit={edit}
                                 onEditClick={handleEditClick}
                                 tableName={tableName}
+                                role={role}
                             />
                         ))}
                         </tbody>
