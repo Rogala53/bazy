@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 CREATE OR REPLACE FUNCTION znajdz_grupe(nazwa_uzytkownika VARCHAR)
 RETURNS VARCHAR as $$
 declare
@@ -72,4 +73,80 @@ BEGIN
 FROM information_schema.role_table_grants 
 WHERE grantee = grupa AND table_name = tabela));
 END;
+=======
+CREATE OR REPLACE FUNCTION znajdz_grupe(nazwa_uzytkownika VARCHAR)
+RETURNS VARCHAR as $$
+declare
+	oid_uzytkownika INTEGER;
+	grupa VARCHAR;
+begin
+	oid_uzytkownika := (SELECT oid FROM pg_roles WHERE rolname = nazwa_uzytkownika);
+	if oid_uzytkownika IS NULL THEN
+		return 'null';
+	end if;
+	grupa := (SELECT groname FROM pg_group WHERE oid_uzytkownika = ANY(grolist));
+	if grupa = 'admins' then
+		RETURN 'admin';
+	elsif grupa = 'pracownicy' then
+		RETURN 'pracownik';
+	else
+		RETURN 'null';
+	end if;
+end;
+$$ language plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION znajdz_widoki_dostepne_dla_pracownikow() 
+RETURNS TABLE(tablename information_schema.sql_identifier) AS $$
+BEGIN
+	RETURN QUERY (SELECT DISTINCT table_name
+FROM information_schema.role_table_grants 
+WHERE grantee='pracownicy' AND table_name LIKE '%widok');
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION znajdz_tabele_dostepne_dla_pracownikow() 
+RETURNS TABLE(tablename information_schema.sql_identifier) AS $$
+BEGIN
+	RETURN QUERY (SELECT DISTINCT table_name
+FROM information_schema.role_table_grants 
+WHERE grantee='pracownicy' AND table_name NOT LIKE '%widok');
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION znajdz_tabele_dostepne_dla_adminow() 
+RETURNS TABLE(tablename information_schema.sql_identifier) AS $$
+BEGIN
+	RETURN QUERY (SELECT DISTINCT table_name
+FROM information_schema.role_table_grants 
+WHERE grantee='admins' AND table_name NOT LIKE '%widok');
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION znajdz_widoki_dostepne_dla_adminow() 
+RETURNS TABLE(tablename information_schema.sql_identifier) AS $$
+BEGIN
+	RETURN QUERY (SELECT DISTINCT table_name
+FROM information_schema.role_table_grants 
+WHERE grantee='admins' AND table_name LIKE '%widok');
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION sprawdz_dostep(grupa VARCHAR, tabela VARCHAR) 
+RETURNS BOOLEAN AS $$
+
+BEGIN
+	RETURN (SELECT EXISTS (SELECT table_name 
+FROM information_schema.role_table_grants 
+WHERE grantee = grupa AND table_name = tabela));
+END;
+>>>>>>> d1ce011d1f9b4bb07cd22e8047f070fe8f560618
 $$ LANGUAGE plpgsql;
