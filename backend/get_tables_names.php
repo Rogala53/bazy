@@ -13,6 +13,7 @@ session_start();
             $tables = $db_handler->get_tables_names($role);
             if ($tables == null) {
                 echo json_encode(['success', false, 'tables' => null]);
+                return;
             }
             echo json_encode(['success' => true, 'tables' => $tables]);
         }

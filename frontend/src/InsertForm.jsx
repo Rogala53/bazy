@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-
 export default function InsertForm({ keys, isVisible, onClose, onSave }) {
     const [formData, setFormData] = useState({});
-
     // Ensure keys is always an array
     const keysArray = Array.isArray(keys) ? keys : (typeof keys === 'string' ? [keys] : []);
+    const keysArrayFiltered = keysArray.slice(1);
 
     const handleInputChange = (fieldName, value) => {
         setFormData(prev => ({
@@ -106,8 +105,7 @@ export default function InsertForm({ keys, isVisible, onClose, onSave }) {
             <div style={styles.editFormContent} onClick={(e) => e.stopPropagation()}>
                 <h3 style={styles.editFormTitle}>Dodaj wiersz</h3>
                 <div style={styles.formContainer}>
-                    {keysArray.length > 0 ? keysArray.map((fieldName, index) => {
-                        console.log('Mapping - fieldName:', fieldName, 'type:', typeof fieldName, 'length:', fieldName?.length);
+                    {keysArrayFiltered.length > 0 ? keysArrayFiltered.map((fieldName, index) => {
                         return renderFormInput(fieldName, index);
                     }) : (
                         <div>No fields to display. Keys: {JSON.stringify(keys)}</div>

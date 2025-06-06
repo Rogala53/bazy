@@ -7,7 +7,7 @@ import EditForm from './editForm.jsx';
 import InsertForm from './InsertForm.jsx';
 export default function Table() {
     const {tableName, edit} = useParams();
-
+    const [isView, setIsView] = useState(false);
     const [data, setData] = useState([]);
     const [keys, setKeys] = useState([]);
     const [message, setMessage] = useState('');
@@ -39,7 +39,7 @@ export default function Table() {
                 if (!result.success) {
                     throw new Error(result.message);
                 }
-
+                setIsView(result.isView);
                 if (result.data && result.data.length > 0 && Array.isArray(result.data)) {
                     setData(result.data);
                     setKeys(Object.keys(result.data[0]));
@@ -85,8 +85,28 @@ export default function Table() {
         setShowInsertForm(true);
 
     }
-    function handleInsertSave(newRow) {
-        console.log("Tu zapisywanie nowego wiersza w bazie", newRow);
+    async function handleInsertSave(newRow) {
+        try {
+            const response = await fetch('api/add_row.php', {
+                method: "POST",
+                body: JSON.stringify({
+                    data_to_insert: newRow,
+                    table_name: tableName
+                })
+            })
+            if(!response.ok) {
+                throw new Error(`${response.message}`);
+            }
+            const data = await response.json();
+            if(data.success) {
+                alert("Nowy rekord został dodany");
+                window.location.reload();
+            } else {
+                throw new Error("Nie udało się dodać rekordu:", data.message);
+            }
+        } catch(error) {
+            console.error(error.message)
+        }
     }
     function handleInsertModalClose() {
         setShowInsertForm(false)
@@ -125,7 +145,8 @@ export default function Table() {
                         ))}
                         </tbody>
                     </table>
-                            <button className="add-button" type="button" onClick={handleInsertClick}>Dodaj</button>
+                            {(isView) ? null :
+                            <button className="add-button" type="button" onClick={handleInsertClick}>Dodaj</button>}
                         </>
                         ) : (
                             <div>Brak danych do wyświetlenia</div>

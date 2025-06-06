@@ -26,10 +26,12 @@ try {
         $db_handler->connect($user);
         if($from_exact_table){
             $data = $db_handler->get_table_data($role, $table_name);
+            $isView = false;
         } else {
             $data = $db_handler->get_table_view($role, $table_name);
+            $isView = true;
         }
-        echo json_encode(['success' => true, 'data' => $data]);
+        echo json_encode(['success' => true, 'isView' => $isView, 'data' => $data]);
     }
 } catch (Exception $e) {
     http_response_code(400);

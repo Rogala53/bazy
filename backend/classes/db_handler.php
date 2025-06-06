@@ -116,6 +116,103 @@ class Db_handler
             return false;
         }
     }
+    public function add_record($table_name, $data_to_insert, $role)
+    {
+        try {
+            $has_grant = $this->has_grant($role, $table_name);
+            if(!$has_grant) {
+                throw new Exception("You do not have permission to this table");
+            }
+            switch($table_name) {
+                case 'klienci':
+                    return $this->add_client_record($data_to_insert);
+                case 'sprzety':
+                    return $this->add_equipment_record($data_to_insert);
+                case 'zgloszenia':
+                    return $this->add_reports_record($data_to_insert);
+                case 'dzialania':
+                    return $this->add_actions_record($data_to_insert);
+                case 'pracownicy':
+                    return $this->add_employees_record($data_to_insert);
+                case 'zespoly':
+                    return $this->add_team_record($data_to_insert);
+            }
+        } catch(Exception $e) {
+            return false;
+        }
+    }
+    private function add_client_record($data)
+    {
+        $first_name = $data['imie'];
+        $last_name = $data['nazwisko'];
+        $phone = $data['telefon'];
+        $query = "CALL dodaj_klienci('$first_name', '$last_name', '$phone')";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
+    private function add_equipment_record($data)
+    {
+        $client_id = $data['id_klienta'];
+        $desc = $data['opis'];
+        $collect = $data['odbior'];
+        $query = "CALL dodaj_sprzety($client_id, '$desc', '$collect')";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
+    private function add_reports_record($data)
+    {
+        $equipment_id = $data['id_sprzetu'];
+        $status = $data['status'];
+        $arrival_date = $data['data_przyjecia'];
+        $fault = $data['usterka'];
+        $query = "CALL dodaj_zgloszenia($equipment_id, '$fault', '$status', '$arrival_date')";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
+    private function add_actions_record($data)
+    {
+        $report_id = $data['id_zgloszenia'];
+        $employee_id = $data['id_pracownika'];
+        $date = $data['data'];
+        $desc = $data['opis'];
+        $query = "CALL modyfikuj_dzialania($report_id, $employee_id, '$desc', '$date')";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
+    private function add_employees_record($data)
+    {
+        $first_name = $data['imie'];
+        $last_name = $data['nazwisko'];
+        $team_id = $data['id_zespolu'];
+        $query = "CALL dodaj_pracownicy('$first_name', '$last_name', $team_id)";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
+    private function add_team_record($data)
+    {
+        $specialization  = $data['specjalizacja'];
+        $query = "CALL dodaj_zespoly('$specialization')";
+        $result = pg_query($this->db, $query);
+        if(!$result) {
+            throw new Exception("Could not execute query.");
+        }
+        return true;
+    }
     public function edit_record($table_name, $data, $role) {
         try {
             $has_grant = $this->has_grant($role, $table_name);
@@ -258,4 +355,6 @@ class Db_handler
             return false;
         }
     }
+
+
 }
