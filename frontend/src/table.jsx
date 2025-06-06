@@ -4,6 +4,7 @@ import TableRow from './tableRow';
 import KeyRow from './keyRow';
 import ReturnButton from './returnButton';
 import EditForm from './editForm.jsx';
+import InsertForm from './InsertForm.jsx';
 export default function Table() {
     const {tableName, edit} = useParams();
 
@@ -12,6 +13,7 @@ export default function Table() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [showEditForm, setShowEditForm] = useState(false);
+    const [showInsertForm, setShowInsertForm] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [role, setRole] = useState();
 
@@ -78,6 +80,17 @@ export default function Table() {
     function handleSave(editedRow) {
         console.log("Tu zapisywanie zmian w bazie", editedRow);
     }
+
+    function handleInsertClick() {
+        setShowInsertForm(true);
+
+    }
+    function handleInsertSave(newRow) {
+        console.log("Tu zapisywanie nowego wiersza w bazie", newRow);
+    }
+    function handleInsertModalClose() {
+        setShowInsertForm(false)
+    }
     return (
         <>
             <title>{tableName}</title>
@@ -87,6 +100,7 @@ export default function Table() {
             <div className="table-container">
                     <h1>{tableName}</h1>
                     {data.length > 0 ? (
+                        <>
                     <table>
                         <thead>
                         <tr>
@@ -111,6 +125,8 @@ export default function Table() {
                         ))}
                         </tbody>
                     </table>
+                            <button className="add-button" type="button" onClick={handleInsertClick}>Dodaj</button>
+                        </>
                         ) : (
                             <div>Brak danych do wyświetlenia</div>
                         )}
@@ -123,6 +139,11 @@ export default function Table() {
                 onSave={handleSave}
                 tableName={tableName}
             /> ) : null};
+            <InsertForm
+                keys={keys}
+                isVisible={showInsertForm}
+                onClose={handleInsertModalClose}
+                onSave={handleInsertSave}/>
         </>
     );
 }

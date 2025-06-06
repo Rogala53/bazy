@@ -197,3 +197,14 @@ tr td {
   text-decoration: underline;
   scale: 1.1;
 }
+.add-button {
+  color: white;
+  background-color: #04AA6D;
+  border: none;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 1.1em;
+  border-radius: 10px;
+  position: relative;
+  float: right;
+}

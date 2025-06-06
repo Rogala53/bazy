@@ -57,8 +57,6 @@ export default function TableRow({tableRow, edit, onEditClick, tableName, role})
                 </td>
                 )}
             </tr>
-
-
         </>
     );
 }
