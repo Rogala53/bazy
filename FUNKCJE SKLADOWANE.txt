@@ -148,5 +148,4 @@ BEGIN
 FROM information_schema.role_table_grants 
 WHERE grantee = grupa AND table_name = tabela));
 END;
->>>>>>> d1ce011d1f9b4bb07cd22e8047f070fe8f560618
 $$ LANGUAGE plpgsql;
