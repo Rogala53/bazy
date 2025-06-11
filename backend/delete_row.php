@@ -22,9 +22,9 @@
             if($success) {
                 echo json_encode(['success' => true, 'message' => "Record successfully deleted"]);
             } else {
-                echo json_encode(['success' => false, 'message' => "Failed to delete record"]);
+                echo json_encode(['success' => false, 'message' => pg_last_error()]);
             }
         }
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => "Failed to delete record"]);
     }

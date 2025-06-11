@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION odbior_wyzw() RETURNS TRIGGER AS $$
+DECLARE
+	id_zglosz INTEGER;
+BEGIN
+	SELECT id_zgloszenia INTO id_zglosz FROM dzialania WHERE id = NEW.id;
+	if NEW.opis = 'koniec' then
+		UPDATE sprzety SET odbior = 'tak' WHERE id IN (SELECT s.id FROM sprzety s JOIN zgloszenia z ON z.id_sprzetu = s.id
+		JOIN dzialania d ON d.id_zgloszenia = z.id WHERE d.id_zgloszenia = id_zglosz);
+		UPDATE zgloszenia SET data_zakonczenia = NOW() WHERE id = id_zglosz;
+		UPDATE zgloszenia SET status = 'zakonczony' WHERE id = id_zglosz;
+	end if;
+	RETURN NULL;
+END;
+$$ LANGUAGE PLPGSQL;
+
+
+CREATE TRIGGER odbior_wyzwalacz AFTER INSERT OR UPDATE ON dzialania
+FOR EACH ROW
+EXECUTE PROCEDURE odbior_wyzw();

@@ -47,14 +47,14 @@ export default function InsertForm({ keys, isVisible, onClose, onSave }) {
                         value={currentValue || 'przyjete'}
                         onChange={(e) => handleInputChange(fieldName, e.target.value)}
                         style={styles.input}>
-                        <option value="przyjete">przyjęte</option>
+                        <option value="przyjete">Przyjęte</option>
                         <option value="w_trakcie">W trakcie</option>
                         <option value="zakonczony">Zakończony</option>
                     </select>
                 </div>
             );
         } else if (fieldName.startsWith("data")) {
-            // Get current date in YYYY-MM-DD format for date input
+            if(fieldName === 'data_zakonczenia') return;
             const today = new Date();
             const currentDate = today.toISOString().split('T')[0];
 
@@ -83,7 +83,6 @@ export default function InsertForm({ keys, isVisible, onClose, onSave }) {
                 </div>
             );
         } else {
-            // Default text input for other fields
             return (
                 <div key={`${fieldName}-${index}`} style={styles.inputGroup}>
                     <label style={styles.label}>{fieldName}</label>

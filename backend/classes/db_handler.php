@@ -7,6 +7,12 @@ class Db_handler
     private $db;
 
     public function __construct($server_name, $db_name) {
+        
+        if(!defined('DEBUG_MODE')) {
+            ini_set('display_errors', 0);
+            error_reporting(0);
+        }
+
         $this->server_name = $server_name;
         $this->db_name = $db_name;
     }
@@ -27,7 +33,9 @@ class Db_handler
             return false;
         }
     }
-
+    public function get_connection() {
+        return $this->db;
+    }
     public function get_role(User $user) {
         $username = $user->get_username();
         $query = "SELECT * FROM znajdz_grupe('$username')";
@@ -60,7 +68,19 @@ class Db_handler
             $tables[] = $row[0];
             $row = pg_fetch_row($result);
         }
+        if($role == 'pracownik') {
+            $tables = $this->delete_employees_table_from_array($tables);
+        }
         return $tables;
+    }
+
+    private function delete_employees_table_from_array(array $array) {
+        $key = array_search('pracownicy', $array);
+        if($key !== false) {
+            unset($array[$key]);
+            $array = array_values($array);
+        }
+        return $array;
     }
     public function get_table_data($role, $table_name) {
         try {
@@ -68,8 +88,7 @@ class Db_handler
                 throw new Exception("You do not have permission to this table");
             }
             $func_name = "pobierz_$table_name()";
-            $order = "ORDER BY id DESC";
-            $query = "SELECT * FROM $func_name $order";
+            $query = "SELECT * FROM $func_name";
             $result = pg_query($this->db, $query);
             if(!$result) {
                 throw new Exception("Could not execute query.");
@@ -99,6 +118,7 @@ class Db_handler
         return $data;
     }
     private function has_grant($role, $table_name) {
+        if($role != 'admin' && ($table_name == 'pracownicy' || $table_name == 'zespoly')) return false;
         $query = "SELECT * FROM sprawdz_dostep('$role', '$table_name')";
         try {
             $result = pg_query($this->db, $query);
@@ -157,9 +177,14 @@ class Db_handler
     {
         $client_id = $data['id_klienta'];
         $desc = $data['opis'];
-        $collect = $data['odbior'];
-        $query = "CALL dodaj_sprzety($client_id, '$desc', '$collect')";
-        $result = pg_query($this->db, $query);
+        if($data['odbior'] != null) {
+            $collect = $data['odbior'];
+            $query = "CALL dodaj_sprzety($1, $2, $3)";
+            $result = pg_query_params($this->db, $query, array($client_id, $desc, $collect));
+        } else {
+            $query = "CALL dodaj_sprzety($1, $2)";
+            $result = pg_query_params($this->db, $query, array($client_id, $desc));
+        }
         if(!$result) {
             throw new Exception("Could not execute query.");
         }
@@ -169,9 +194,13 @@ class Db_handler
     {
         $equipment_id = $data['id_sprzetu'];
         $status = $data['status'];
-        $arrival_date = $data['data_przyjecia'];
-        $fault = $data['usterka'];
-        $query = "CALL dodaj_zgloszenia($equipment_id, '$fault', '$status', '$arrival_date')";
+        if($data['data_przyjecia'] != null && $data['usterka'] != null) {
+            $arrival_date = $data['data_przyjecia'];
+            $fault = $data['usterka'];
+            $query = "CALL dodaj_zgloszenia($equipment_id, '$fault', '$status', '$arrival_date')";
+        } else {
+            $query = "CALL dodaj_zgloszenia($equipment_id, '$status')";
+        }
         $result = pg_query($this->db, $query);
         if(!$result) {
             throw new Exception("Could not execute query.");
@@ -182,9 +211,16 @@ class Db_handler
     {
         $report_id = $data['id_zgloszenia'];
         $employee_id = $data['id_pracownika'];
-        $date = $data['data'];
         $desc = $data['opis'];
-        $query = "CALL modyfikuj_dzialania($report_id, $employee_id, '$desc', '$date')";
+        if($data['data'] != null) {
+            $date = $data['data'];
+            $query = "CALL dodaj_dzialania($report_id, $employee_id, '$desc', '$date')";
+        } else {
+            $query = "CALL dodaj_dzialania($report_id, $employee_id, '$desc')";
+        }
+        
+        
+        
         $result = pg_query($this->db, $query);
         if(!$result) {
             throw new Exception("Could not execute query.");
@@ -246,7 +282,7 @@ class Db_handler
         $query = "CALL modyfikuj_klienci($id, '$first_name', '$last_name', '$phone')";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -258,7 +294,7 @@ class Db_handler
         $query = "CALL modyfikuj_sprzety($id, $client_id, '$desc', '$collect')";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -272,7 +308,7 @@ class Db_handler
         $query = "CALL modyfikuj_zgloszenia($id, $equipment_id, '$status', '$arrival_date', '$completion_date', '$fault')";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -285,7 +321,7 @@ class Db_handler
         $query = "CALL modyfikuj_dzialania($id, $report_id, $employee_id, '$date', '$desc')";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -297,7 +333,7 @@ class Db_handler
         $query = "CALL modyfikuj_pracownicy($id, '$first_name', '$last_name', $team_id)";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -308,7 +344,7 @@ class Db_handler
         $query = "CALL modyfikuj_zespoly($id, '$specialization')";
         $result = pg_query($this->db, $query);
         if(!$result) {
-            throw new Exception("Could not execute query.");
+            throw new Exception(pg_last_error($this->db));
         }
         return true;
     }
@@ -316,13 +352,13 @@ class Db_handler
         try {
             $has_grant = $this->has_grant($role, $table_name);
             if(!$has_grant) {
-                return "You do not have permission to delete record.";
+                throw new Exception("You do not have permission to delete record.");
             }
             $procedure = "usun_$table_name($id)";
             $query = "CALL $procedure";
             $result = pg_query($this->db, $query);
             if(!$result) {
-                throw new Exception("Could not execute query.");
+                throw new Exception(pg_last_error($this->db));
             }
             return true;
         } catch(Exception $e) {
@@ -330,31 +366,30 @@ class Db_handler
         }
     }
 
-    public function create_account($username, $password, $role) {
+    public function create_account($username, $password, $role)
+    {
         $password = hash('sha256', $password);
         $group = $role === 'admin' ? 'admins' : 'pracownicy';
         try {
             $set_role_query = "SET ROLE admins";
             $set_role = pg_query($this->db, $set_role_query);
-            if(!$set_role) {
+            if (!$set_role) {
                 throw new Exception("Nie udało się ustawić roli.");
             }
             $query = "CALL dodaj_konto('$username', '$password', '$group')";
             $result = pg_query($this->db, $query);
-            if(!$result) {
+            if (!$result) {
                 throw new Exception(pg_last_error());
             }
             $unset_role_query = "RESET ROLE";
             $unset_role = pg_query($this->db, $unset_role_query);
-            if(!$unset_role) {
+            if (!$unset_role) {
                 throw new Exception("Nie udało się zresetować roli.");
-            } 
+            }
             return true;
-            
-        } catch(Exception $e) {
+
+        } catch (Exception $e) {
             return false;
         }
     }
-
-
 }

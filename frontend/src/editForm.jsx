@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 
 export default function EditForm({tableRow, isVisible, onClose, onSave, tableName}) {
     const [editedRow, setEditedRow] = useState(tableRow || {});
+    const [editError, setEditError] = useState('');
     useEffect(() => {
         if(tableRow) {
             const entries = Object.entries(tableRow);
@@ -14,7 +15,6 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
     function renderInputField(key, value) {
         if (key === 'odbior') {
             return (
-                <>
                     <div key={key} style={styles.inputGroup}>
                         <label style={styles.label}>{key}</label>
                         <select
@@ -25,24 +25,21 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
                             <option value="tak">Tak</option>
                         </select>
                     </div>
-                </>
             )
         }
         else if(key === 'status') {
             return (
-                <>
                     <div key={key} style={styles.inputGroup}>
                         <label style={styles.label}>{key}</label>
                         <select
                             value={value || ''}
                             onChange={(e) => handleInputChange(key, e.target.value)}
                             style={styles.input}>
-                            <option value="przyjete">przyjete</option>
+                            <option value="przyjete">Przyjęte</option>
                             <option value="w_trakcie">W trakcie</option>
                             <option value="zakonczony">Zakończony</option>
                         </select>
                     </div>
-                </>
             )
         }
         else if(key.startsWith("data")) {
@@ -53,7 +50,6 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
 
             let currentDate = `${year}.${month}.${day}`;
             return (
-                <>
                     <div key={key} style={styles.inputGroup}>
                         <label style={styles.label}>{key}</label>
                         <input
@@ -63,12 +59,10 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
                             style={styles.input}>
                         </input>
                     </div>
-                </>
             )
         }
         else if(Number.isInteger(parseInt(value))) {
             return (
-            <>
                 <div key={key} style={styles.inputGroup}>
                     <label style={styles.label}>{key}</label>
                     <input
@@ -79,12 +73,10 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
                         style={styles.input}>
                     </input>
                 </div>
-            </>
             )
         }
         else {
             return (
-                <>
                     <div key={key} style={styles.inputGroup}>
                         <label style={styles.label}>{key}</label>
                         <input
@@ -94,7 +86,6 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
                             style={styles.input}>
                         </input>
                     </div>
-                </>
             )
         }
     }
@@ -113,21 +104,28 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
         try {
             const response = await fetch('api/edit_row.php', {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                     dataToSave: dataToSave,
                     tableName: tableName
                 })
             })
             if (!response.ok) {
-                throw new Error(`${response.message}`);
+
+                throw new Error("Wystapił błąd podczas łączenia z api");
             }
-            console.log("sukces");
-            if (onSave) {
+            const data = await response.json();
+            if(!data.success) {
+                throw new Error(data.message);
+            } else {
                 onSave(dataToSave);
             }
             onClose();
         } catch (error) {
             console.error(error);
+            setEditError(error.message);
         }
     }
 
@@ -142,7 +140,7 @@ export default function EditForm({tableRow, isVisible, onClose, onSave, tableNam
             <div style={styles.editFormOverlay} onClick={cancelEdit}>
                 <div style={styles.editFormContent} onClick={(e) => e.stopPropagation()}>
                     <h3 style={styles.editFormTitle}>Edytuj wiersz</h3>
-
+                    {editError && <p style={styles.error}>{editError}</p>}
                     <div style={styles.formContainer}>
                         {Object.entries(editedRow).map(([key, value]) =>
                             renderInputField(key, value)
@@ -176,7 +174,7 @@ const styles = {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba (0, 0, 0, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         display: "flex",
         justifyContent: 'center',
         alignItems: 'flex-start',
@@ -254,4 +252,9 @@ const styles = {
         fontWeight: '600',
         transition: 'background-color 0.2s ease',
     },
+    error: {
+        color: "red",
+        marginTop: "10px",
+        textAlign: "center",
+    }
 }

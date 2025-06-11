@@ -101,5 +101,8 @@ begin
 	if not zespol_istnieje then
 		raise exception 'Zespol z tym id nie istnieje';
 	end if;
+	if specjalizacja IS NULL OR specjalizacja = '' then
+		raise exception 'Pole specjalizacji nie może byc puste';
+	end if;
 	UPDATE zespoly SET specjalizacja = modyfikuj_zespoly.specjalizacja WHERE id = modyfikuj_zespoly.id_zespolu;
 end $$;

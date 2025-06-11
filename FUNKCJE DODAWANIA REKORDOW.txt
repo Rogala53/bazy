@@ -1,46 +1,34 @@
-CREATE OR REPLACE PROCEDURE dodaj_pracownika(imie VARCHAR, nazwisko VARCHAR, id_zespolu INTEGER) language plpgsql as $$
+CREATE OR REPLACE PROCEDURE dodaj_pracownicy(imie VARCHAR, nazwisko VARCHAR, id_zespolu INTEGER) language plpgsql as $$
 declare
 	pracownik_istnieje boolean;
+	zespol_istnieje boolean;
 begin
-	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.imie = dodaj_pracownika.imie AND p.nazwisko = dodaj_pracownika.nazwisko);
+	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.imie = dodaj_pracownicy.imie AND p.nazwisko = dodaj_pracownicy.nazwisko);
 	if pracownik_istnieje then
 		raise exception 'Taki pracownik juz istnieje';
 	end if;
-	INSERT INTO pracownicy (imie, nazwisko, id_zespolu) VALUES (dodaj_pracownika.imie, dodaj_pracownika.nazwisko, dodaj_pracownika.id_zespolu);
-
+	zespol_istnieje := EXISTS(SELECT 1 FROM zespoly z WHERE z.id = dodaj_pracownicy.id_zespolu);
+	if not zespol_istnieje then
+		raise exception 'Zespół o tym id nie istnieje';
+	end if;
+	INSERT INTO pracownicy (imie, nazwisko, id_zespolu) VALUES (dodaj_pracownicy.imie, dodaj_pracownicy.nazwisko, dodaj_pracownicy.id_zespolu);
+	raise notice 'nowy pracownik został dodany';
 end $$;
 
-CREATE OR REPLACE PROCEDURE dodaj_konto(id_pracownika INTEGER, nazwa VARCHAR, haslo CHAR(64), rola VARCHAR) language plpgsql as $$
-
-declare
-	nazwa_istnieje boolean;
-begin
-	nazwa_istnieje := EXISTS(SELECT 1 FROM konta WHERE konta.nazwa = dodaj_konto.nazwa);
-	if nazwa_istnieje then
-		raise exception 'Taka nazwa uzytkownika juz istnieje';
-	end if;
-	if rola not in ('admin', 'pracownik') then
-		raise exception 'Nieprawidlowa rola. Dozwolone wartosci: admin lub pracownik';
-	end if;
-
-	INSERT INTO konta (id_pracownika, nazwa, haslo, rola) VALUES (dodaj_konto.id_pracownika, dodaj_konto.nazwa, dodaj_konto.haslo, dodaj_konto.rola);
-end $$;
-
-
-
-CREATE OR REPLACE PROCEDURE dodaj_zespol(specjalizacja VARCHAR) language plpgsql as $$
+CREATE OR REPLACE PROCEDURE dodaj_zespoly(specjalizacja VARCHAR) language plpgsql as $$
 begin
 	if specjalizacja IS NULL then
 		raise exception 'Specjalizacja nie moze byc pusta';
 	end if;
 	INSERT INTO zespoly (specjalizacja) VALUES (specjalizacja);
+	raise notice 'nowy zespol zostal dodany';
 end $$;
 
 
 
-CREATE PROCEDURE dodaj_klienta(imie VARCHAR, nazwisko VARCHAR, telefon CHAR) language plpgsql as $$
+CREATE OR REPLACE PROCEDURE dodaj_klienci(imie VARCHAR, nazwisko VARCHAR, telefon CHAR) language plpgsql as $$
 begin
-	if telefon IS NULL then
+	if telefon IS NULL OR telefon = '' then
 		raise exception 'Telefon nie moze byc pusty';
 	end if;
 	if not telefon ~ '^[0-9]{9}$' then
@@ -48,26 +36,32 @@ begin
 	end if;
 
 	INSERT INTO klienci (imie, nazwisko, telefon) VALUES (imie, nazwisko, telefon);
+	raise notice 'Udało się dodać nowego klienta';
 end $$;
 
 
 
-CREATE OR REPLACE PROCEDURE dodaj_sprzet(numer_telefonu CHAR(9), opis TEXT) language plpgsql as $$
+
+CREATE OR REPLACE PROCEDURE dodaj_sprzety(id_klienta INTEGER, opis TEXT, odbior TEXT DEFAULT 'nie') language plpgsql as $$
 declare
-	id_klienta INTEGER;
+	klient_istnieje BOOLEAN;
 begin
-	if numer_telefonu IS NULL OR opis IS NULL then
-		raise exception 'numer telefonu i opis nie moga byc puste';
+	klient_istnieje := (EXISTS (SELECT 1 FROM klienci WHERE dodaj_sprzety.id_klienta = klienci.id));
+	if not klient_istnieje  then
+		raise exception 'Klient o tym id nie istnieje';
 	end if;
-	id_klienta := (SELECT k.id FROM klienci k WHERE k.telefon = numer_telefonu);
-	if  id_klienta IS NULL then
-		raise exception 'Klient z tym numerem telefonu nie istnieje';
+	if opis = '' then
+		raise exception 'Opis nie może być pusty';
 	end if;
-	INSERT INTO sprzety (id_klienta, opis) VALUES (id_klienta, opis);
+	if TRIM(odbior) NOT IN ('nie', 'tak') then
+		raise exception 'pole odbior ma inne wartosci niz powinno, otrzymano %', odbior;
+	end if;
+	INSERT INTO sprzety (id_klienta, opis, odbior) VALUES (id_klienta, opis, odbior);
+	raise notice 'nowy sprzet zostal dodany';
 end $$;
 
 
-CREATE OR REPLACE PROCEDURE dodaj_dzialanie(id_zgloszenia INTEGER, id_pracownika INTEGER, opis VARCHAR, data_dzialania DATE DEFAULT CURRENT_DATE)
+CREATE OR REPLACE PROCEDURE dodaj_dzialania(id_zgloszenia INTEGER, id_pracownika INTEGER, opis VARCHAR, data_dzialania DATE DEFAULT CURRENT_DATE)
 language plpgsql as $$
 declare
 	zgloszenie_istnieje boolean;
@@ -75,7 +69,7 @@ declare
 	data_rozpoczecia date;
 begin
 	if id_zgloszenia IS NULL OR data_dzialania IS NULL OR opis IS NULL then
-		raise exception 'id_zgloszenia, data i opis nie moga byc null';
+		raise exception 'id_zgloszenia, data i opis nie moga byc puste';
 	end if;
 	zgloszenie_istnieje := EXISTS(SELECT 1 FROM zgloszenia WHERE id = id_zgloszenia);
 	if not zgloszenie_istnieje then
@@ -90,10 +84,11 @@ begin
 		raise exception 'Data dzialania nie moze byc wczesniejsza niz data_rozpoczecia';
 	end if;
 	INSERT INTO dzialania (id_zgloszenia, id_pracownika, data, opis) VALUES (id_zgloszenia, id_pracownika, data_dzialania, opis);
+	raise notice 'nowe działanie zostało dodane';
 end $$;
 
 
-CREATE OR REPLACE PROCEDURE dodaj_zgloszenie(id_sprzetu INTEGER, usterka VARCHAR,
+CREATE OR REPLACE PROCEDURE dodaj_zgloszenia(id_sprzetu INTEGER, usterka VARCHAR,
  status VARCHAR DEFAULT 'przyjete', data_przyjecia DATE DEFAULT CURRENT_DATE) language plpgsql as $$
 declare
 	sprzet_istnieje boolean;
@@ -106,7 +101,7 @@ begin
 	if not sprzet_istnieje then
 		raise exception 'Sprzet o takim id nie istnieje';
 	end if;
-
 	INSERT INTO zgloszenia (id_sprzetu, status, data_przyjecia, usterka)
 	VALUES (id_sprzetu, status, data_przyjecia, usterka);
+	raise notice 'nowe zgłoszenie zostało dodane';
 end $$;

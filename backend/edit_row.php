@@ -20,7 +20,7 @@ try {
         if($success){
             echo json_encode(['success' => true, 'message' => "Record successfully modified"]);
         } else {
-            echo json_encode(['success' => false, 'message' => pg_last_error()]);
+            echo json_encode(['success' => false, 'message' => pg_last_error($db_handler->get_connection())]);
         }
     }
 } catch (Exception $e) {

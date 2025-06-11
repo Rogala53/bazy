@@ -1,7 +1,8 @@
-import React from 'react';
+import { React, useState } from 'react';
 export default function TableRow({tableRow, edit, onEditClick, tableName, role}) {
     const isAdmin = role === 'admin';
     const isEdit = edit === 'edit';
+    const [error, setError] = useState('');
     function showEditComponent() {
         onEditClick(tableRow);
     }
@@ -21,18 +22,21 @@ export default function TableRow({tableRow, edit, onEditClick, tableName, role})
             const data = await response.json();
             const success = data.success;
             if(success) {
-                console.log(data.message);
+                alert(`Rekord o numerze id: ${rowId} został usunięty.`)
                 window.location.reload();
+            } else {
+                throw new Error(data.message);
             }
 
         } catch(error) {
-            console.error(error)
+            setError(error.message);
         }
     }
 
 
     return (
         <>
+            {error && <p style={styles.error}>{error}</p>}
             <tr style={styles.row}>
                 {Object.values(tableRow).map((cell, cellIndex) => (
                     <td key={cellIndex} style={styles.cell}>{cell === null ? "-" : String(cell)}</td>
@@ -77,5 +81,13 @@ const styles = {
     },
     edit: {
         margin: "0 5px",
+    },
+    error: {
+        color: "red",
+        margin: "30px 0",
+        position: "absolute",
+        top: "-60px",
+        left: "45%",
+        textAlign: "center"
     }
 };

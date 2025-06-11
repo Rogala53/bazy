@@ -72,6 +72,7 @@ export default function CreateUser() {
 
   return (
     <>
+      <title>Tworzenie użytkownika</title>
     <ReturnButton />
     <div className="container" style={styles.container}>
       <h1 style={styles.h1}>Stwórz nowego użytkownika</h1>

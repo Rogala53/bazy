@@ -35,18 +35,30 @@ export default function Login() {
         body: JSON.stringify(accountData),
       });
 
-      if(!response.ok) {
-        throw new Error(response.message);
+      const contentType = response.headers.get("content-type");
+      if(!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Non-JSON response: ", text);
+        throw new Error("Serwer zwrócił nieprawidłową odpowiedź");
       }
       const data = await response.json();
+    
       if(data.success) {
         localStorage.setItem('username', data.username);
         navigate(`/menu`);
       } else {
-        setError("Nieprawidłowa nazwa użytkownika lub hasło");
+        throw new Error(data.message || "Logowanie nie powiodło się");
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (e) {
+      console.error("Login error: ", e);
+
+      if(e.name === 'TypeError' && e.message.includes("fetch")) {
+        setError("Nie można się połączyć się z serwerem");
+      } else if(e.name === 'SyntaxError' || e.message.includes("Unexpected token")) {
+        setError("Nieprawidłowa nazwa użytkownika lub hasło");
+      } else {
+        setError(e.message);
+      }
     }
   }
   return (

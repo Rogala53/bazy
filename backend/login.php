@@ -22,10 +22,10 @@ try {
             $username = $user->get_username();
             $_SESSION['user'] = $user;
             echo json_encode(['success' => true, 'username' => $username]);
-        } else {;
+        } else {
             echo json_encode(['success' => false, 'message' => "Nie udało się zalogować"]);
         }
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => "Wystąpił błąd, spróbuj ponownie"]);
 }

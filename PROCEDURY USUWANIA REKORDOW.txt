@@ -1,12 +1,16 @@
 CREATE OR REPLACE PROCEDURE usun_klienci(id INTEGER) language plpgsql as $$
 declare
 	klient_istnieje boolean;
+	sprzety_count integer;
 begin
 	klient_istnieje := EXISTS(SELECT 1 FROM klienci k WHERE k.id = usun_klienci.id);
 	if not klient_istnieje then
 		raise exception 'Klient o takim id nie istnieje';
 	end if;
-
+	SELECT COUNT(*) INTO sprzety_count FROM sprzety WHERE id_klienta = usun_klienci.id;
+	if sprzety_count > 0 then
+		DELETE from sprzety WHERE id_klienta = usun_klienci.id;
+	end if;
 	DELETE FROM klienci k WHERE k.id = usun_klienci.id;
 end $$;
 
@@ -29,13 +33,18 @@ end $$;
 CREATE OR REPLACE PROCEDURE usun_pracownicy(id INTEGER) language plpgsql as $$
 declare
 	pracownik_istnieje boolean;
+	dzialania_count integer;
 begin
-	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.id = usun_pracownika.id);
+	pracownik_istnieje := EXISTS(SELECT 1 FROM pracownicy p WHERE p.id = usun_pracownicy.id);
 	if not pracownik_istnieje then
 		raise exception 'Pracownik o takim id nie istnieje';
 	end if;
-
-	DELETE FROM pracownicy p WHERE p.id = usun_pracownika.id;
+	SELECT COUNT(*) INTO dzialania_count FROM dzialania WHERE id_pracownika = usun_pracownicy.id;
+	if dzialania_count > 0 then
+		delete from dzialania WHERE id_pracownika = usun_pracownicy.id;
+	end if;
+	DELETE FROM pracownicy p WHERE p.id = usun_pracownicy.id;
+	raise notice 'Pracownik został usunięty';
 end $$;
 
 

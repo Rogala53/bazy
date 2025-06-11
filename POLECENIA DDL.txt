@@ -11,7 +11,8 @@ CREATE TABLE sprzety (
 	id_klienta INTEGER NOT NULL,
 	opis TEXT NOT NULL,
 	odbior CHAR(3) NOT NULL DEFAULT 'nie',
-	CONSTRAINT fk_klient FOREIGN KEY (id_klienta) REFERENCES klienci(id)
+	CONSTRAINT fk_klient FOREIGN KEY(id_klienta) REFERENCES klienci(id) ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
 
 CREATE TABLE zespoly (
@@ -33,7 +34,7 @@ CREATE TABLE zgloszenia (
 	data_przyjecia DATE NOT NULL CHECK (data_przyjecia <= data_zakonczenia),
 	data_zakonczenia DATE CHECK (data_zakonczenia >= data_przyjecia),
 	usterka VARCHAR(45) NOT NULL,
-	CONSTRAINT fk_sprzet FOREIGN KEY (id_sprzetu) REFERENCES sprzety(id)
+	CONSTRAINT fk_sprzet FOREIGN KEY (id_sprzetu) REFERENCES sprzety(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE dzialania (
@@ -42,6 +43,6 @@ CREATE TABLE dzialania (
 	id_pracownika INTEGER NOT NULL,
 	data DATE NOT NULL,
 	opis VARCHAR(100) NOT NULL,
-	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id),
-	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id)
+	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id) ON DELETE CASCADE ON UPDATE CASCADE,
 );

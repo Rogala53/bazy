@@ -38,13 +38,13 @@ export default function KeyRow({ keyData }) {
     }
     
     return (
-        <th>
+        <span>
             {isForeignKey && tableLink ?
                 (<a href={url} target="_blank" rel="noopener noreferrer" className="table-key-link">{fixedKey}</a>
                 ) : (
                     fixedKey
                 )
             }
-        </th>
+        </span>
     )
 }
