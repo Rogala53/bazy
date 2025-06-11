@@ -302,7 +302,14 @@ class Db_handler
         $id = $data['id'];
         $equipment_id = $data['id_sprzetu'];
         $status = $data['status'];
-        $arrival_date = $data['data_przyjecia'];
+        if($data['data_przyjecia'] == null || $data['data_przyjecia'] == '') {
+            throw new Exception("Data przyjecia nie moze byc pusta.");  
+        }
+        if($data['data_zakonczenia'] == null || $data['data_zakonczenia'] == '') {
+            $arrival_date = null;
+        } else {
+            $arrival_date = $data['data_przyjecia'];
+        }
         $completion_date = $data['data_zakonczenia'];
         $fault = $data['usterka'];
         $query = "CALL modyfikuj_zgloszenia($id, $equipment_id, '$status', '$arrival_date', '$completion_date', '$fault')";

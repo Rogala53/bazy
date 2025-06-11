@@ -44,5 +44,5 @@ CREATE TABLE dzialania (
 	data DATE NOT NULL,
 	opis VARCHAR(100) NOT NULL,
 	CONSTRAINT fk_zgloszenie FOREIGN KEY (id_zgloszenia) REFERENCES zgloszenia(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_pracownik FOREIGN KEY (id_pracownika) REFERENCES pracownicy(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

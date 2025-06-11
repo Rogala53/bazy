@@ -2,7 +2,7 @@ CREATE GROUP admins;
 
 GRANT ALL PRIVILEGES ON dzialania, klienci, pracownicy, sprzety, zespoly, zgloszenia TO admins;
 
-GRANT SELECT ON dzialania_id_seq, klienci_id_seq, pracownicy_id_seq, sprzety_id_seq, zespoly_id_seq, zgloszenia_id_seq TO admins;
+GRANT ALL PRIVILEGES ON dzialania_id_seq, klienci_id_seq, pracownicy_id_seq, sprzety_id_seq, zespoly_id_seq, zgloszenia_id_seq TO admins;
 
 
 CREATE GROUP pracownicy;

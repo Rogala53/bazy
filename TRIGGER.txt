@@ -17,3 +17,20 @@ $$ LANGUAGE PLPGSQL;
 CREATE TRIGGER odbior_wyzwalacz AFTER INSERT OR UPDATE ON dzialania
 FOR EACH ROW
 EXECUTE PROCEDURE odbior_wyzw();
+
+
+
+CREATE OR REPLACE FUNCTION odbior_zgloszenia_wyzw() RETURNS TRIGGER AS $$
+DECLARE
+BEGIN
+	if NEW.status = 'zakonczony' then
+		UPDATE sprzety SET odbior = 'tak' WHERE id IN (SELECT s.id FROM sprzety s JOIN zgloszenia z ON z.id_sprzetu = s.id
+		WHERE s.id = z.id_sprzetu);
+	end if;
+	RETURN NULL;
+END;
+$$ LANGUAGE PLPGSQL;
+
+CREATE TRIGGER odbior_zgloszenia_wyzwalacz AFTER INSERT OR UPDATE ON zgloszenia
+FOR EACH ROW
+EXECUTE PROCEDURE odbior_wyzw();
